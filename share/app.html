@@ -72,21 +72,17 @@
 
     <script>
       // ▼▼▼ EDIT THESE VALUES ▼▼▼
-      // Custom URL schemes the app registers natively — confirmed in
-      // ios/SPAR/Info.plist (CFBundleURLSchemes) and
-      // android/app/src/main/AndroidManifest.xml (intent-filter data scheme).
-      // Append a path if you want the app to land on a specific screen that
-      // expo-router can resolve, e.g. "mobile://offers".
-      const APP_SCHEME_URLS = ["mobile://", "com.techwards.spar://"];
+      // Custom scheme the app registers natively (app.config.js `scheme`,
+      // confirmed in ios/SPAR/Info.plist CFBundleURLSchemes and
+      // android/app/src/main/AndroidManifest.xml intent-filter data scheme).
+      const APP_SCHEME = "mobile";
+      const IOS_APP_SCHEME_URLS = ["mobile://", "com.techwards.spar://"];
+      const ANDROID_PACKAGE = "com.techwards.spar";
 
       const IOS_APP_STORE_URL =
         "https://apps.apple.com/pk/app/spar-pk/id6804619003";
-
-      // OPTIMIZED: Changed from market:// to intent:// to bypass browser blocking
-      // and launch the Play Store app directly without needing user permissions.
       const ANDROID_PLAY_STORE_URL =
-        "intent://details?id=com.techwards.spar#Intent;scheme=market;package=com.android.vending;end;";
-
+        "https://play.google.com/store/apps/details?id=com.techwards.spar&hl=en";
       const DESKTOP_FALLBACK_URL = "https://www.spar.pk/";
 
       const ua = navigator.userAgent || navigator.vendor || window.opera;
@@ -94,7 +90,6 @@
       const isAndroid = /android/i.test(ua);
       const isMobile = isIOS || isAndroid;
 
-      // Determine the correct destination URL
       const storeUrl = isIOS
         ? IOS_APP_STORE_URL
         : isAndroid
@@ -105,34 +100,49 @@
       storeLinkEl.href = storeUrl;
       document.getElementById("fallback").style.display = "block";
 
-      // NOTE: there's no Universal Links (iOS) / verified App Links (Android)
-      // set up for this domain, so the OS never intercepts this URL on its
-      // own — we have to actively try the app's custom scheme and detect
-      // whether it took over. When it does, the tab backgrounds (visibility/
-      // blur/pagehide fire) before our fallback timer runs, so we cancel the
-      // store redirect. If nothing happens within the window, we assume the
-      // app isn't installed and send the user to the right store.
-      let appOpened = false;
-      function markOpened() {
-        appOpened = true;
-      }
-      document.addEventListener("visibilitychange", function () {
-        if (document.hidden) markOpened();
-      });
-      window.addEventListener("pagehide", markOpened);
-      window.addEventListener("blur", markOpened);
+      if (isAndroid) {
+        // Chrome's intent:// syntax opens the app directly by package if it's
+        // installed, and falls back to S.browser_fallback_url on its own if
+        // not — one navigation, no polling/guessing, and (unlike a raw
+        // custom-scheme URL) it never replaces the page with an error screen
+        // when the app is missing, so the fallback is guaranteed to fire.
+        const intentUrl =
+          "intent://#Intent;scheme=" +
+          APP_SCHEME +
+          ";package=" +
+          ANDROID_PACKAGE +
+          ";S.browser_fallback_url=" +
+          encodeURIComponent(ANDROID_PLAY_STORE_URL) +
+          ";end";
+        window.location.replace(intentUrl);
+      } else if (isIOS) {
+        // NOTE: there's no Universal Links set up for this domain, so iOS
+        // never intercepts this URL on its own — we have to actively try the
+        // app's custom scheme and detect whether it took over. When it does,
+        // the tab backgrounds (visibility/blur/pagehide fire) before our
+        // fallback timer runs, so we cancel the store redirect. If nothing
+        // happens within the window, we assume the app isn't installed and
+        // send the user to the App Store.
+        let appOpened = false;
+        function markOpened() {
+          appOpened = true;
+        }
+        document.addEventListener("visibilitychange", function () {
+          if (document.hidden) markOpened();
+        });
+        window.addEventListener("pagehide", markOpened);
+        window.addEventListener("blur", markOpened);
 
-      function goToStore() {
-        if (!appOpened) window.location.replace(storeUrl);
-      }
+        function goToStore() {
+          if (!appOpened) window.location.replace(storeUrl);
+        }
 
-      // Try each registered scheme a beat apart — only one will actually be
-      // claimed by the app, the rest are silently ignored by the OS. iOS
-      // Safari pops a "cannot open page" alert when window.location is set
-      // directly to an unclaimed custom scheme, so attempt it through a
-      // throwaway iframe instead — that fails silently.
-      function attemptScheme(scheme) {
-        if (isIOS) {
+        // Try each registered scheme a beat apart — only one will actually be
+        // claimed by the app, the rest are silently ignored by the OS. Safari
+        // pops a "cannot open page" alert when window.location is set
+        // directly to an unclaimed custom scheme, so attempt it through a
+        // throwaway iframe instead — that fails silently.
+        function attemptScheme(scheme) {
           var iframe = document.createElement("iframe");
           iframe.style.display = "none";
           iframe.src = scheme;
@@ -140,37 +150,34 @@
           setTimeout(function () {
             document.body.removeChild(iframe);
           }, 1000);
-        } else {
-          window.location.href = scheme;
         }
-      }
 
-      function tryAppSchemes() {
-        APP_SCHEME_URLS.forEach(function (scheme, i) {
-          setTimeout(function () {
-            if (!appOpened) attemptScheme(scheme);
-          }, i * 250);
-        });
-      }
+        function tryAppSchemes() {
+          IOS_APP_SCHEME_URLS.forEach(function (scheme, i) {
+            setTimeout(function () {
+              if (!appOpened) attemptScheme(scheme);
+            }, i * 250);
+          });
+        }
 
-      if (isMobile) {
         tryAppSchemes();
         setTimeout(goToStore, 1500);
-      } else {
-        setTimeout(goToStore, 800);
-      }
 
-      // A direct tap carries a user gesture, which some browsers require
-      // before they'll let a page hand off to another app — so give the
-      // schemes one more try on click rather than only falling straight
-      // through to the store link.
-      storeLinkEl.addEventListener("click", function (e) {
-        if (!isMobile) return;
-        e.preventDefault();
-        appOpened = false;
-        tryAppSchemes();
-        setTimeout(goToStore, 900);
-      });
+        // A direct tap carries a user gesture, which some browsers require
+        // before they'll let a page hand off to another app — so give the
+        // schemes one more try on click rather than only falling straight
+        // through to the store link.
+        storeLinkEl.addEventListener("click", function (e) {
+          e.preventDefault();
+          appOpened = false;
+          tryAppSchemes();
+          setTimeout(goToStore, 900);
+        });
+      } else {
+        setTimeout(function () {
+          window.location.replace(storeUrl);
+        }, 800);
+      }
     </script>
   </body>
 </html>
