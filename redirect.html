@@ -73,7 +73,9 @@
       "com.techwards.spar://" // bundle id, auto-registered by Expo as a backup
     ];
     const IOS_APP_STORE_URL       = "https://apps.apple.com/pk/app/spar-pk/id6804619003";
-    const ANDROID_PLAY_STORE_URL  = "https://play.google.com/store/apps/details?id=com.techwards.spar&hl=en";
+    // market:// is handled directly by the Play Store app, so it opens the
+    // native app instead of falling back to Play Store's website in Chrome.
+    const ANDROID_PLAY_STORE_URL  = "market://details?id=com.techwards.spar";
     const DESKTOP_FALLBACK_URL    = "https://www.spar.pk/";
 
     const ua = navigator.userAgent || navigator.vendor || window.opera;
