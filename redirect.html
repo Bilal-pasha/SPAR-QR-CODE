@@ -220,11 +220,26 @@
     }
 
     // Try each registered scheme a beat apart — only one will actually be
-    // claimed by the app, the rest are silently ignored by the OS.
+    // claimed by the app, the rest are silently ignored by the OS. iOS
+    // Safari pops a "cannot open page" alert when window.location is set
+    // directly to an unclaimed custom scheme, so attempt it through a
+    // throwaway iframe instead — that fails silently.
+    function attemptScheme(scheme) {
+      if (isIOS) {
+        var iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = scheme;
+        document.body.appendChild(iframe);
+        setTimeout(function () { document.body.removeChild(iframe); }, 1000);
+      } else {
+        window.location.href = scheme;
+      }
+    }
+
     function tryAppSchemes() {
       APP_SCHEME_URLS.forEach(function (scheme, i) {
         setTimeout(function () {
-          if (!appOpened) window.location.href = scheme;
+          if (!appOpened) attemptScheme(scheme);
         }, i * 250);
       });
     }
