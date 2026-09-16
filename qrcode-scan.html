@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get the SPAR App</title>
+<link rel="icon" type="image/png" href="assets/images/favicon.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  @font-face {
+    font-family: "Gilroy";
+    src: url("assets/fonts/Gilroy-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Gilroy";
+    src: url("assets/fonts/Gilroy-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Gilroy";
+    src: url("assets/fonts/Gilroy-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Gilroy";
+    src: url("assets/fonts/Gilroy-ExtraBold.ttf") format("truetype");
+    font-weight: 800;
+    font-display: swap;
+  }
+
+  :root {
+    --spar-red: #EA0A2A;
+    --spar-red-dark: #B30822;
+    --spar-red-hero-from: #E10924;
+    --spar-red-hero-to: #B90A1F;
+    --spar-red-light: #FDE5E9;
+    --spar-green: #009639;
+    --surface-body: #F3F4F6;
+    --border-default: #ECEDF0;
+    --text-ink-strong: #0A0E11;
+    --text-secondary: #6B7280;
+    --text-muted: #8A94A6;
+    --shadow-lg: 0 20px 40px -12px rgba(10,14,17,0.16), 0 4px 10px -4px rgba(10,14,17,0.06);
+    --shadow-md: 0 8px 16px -6px rgba(10,14,17,0.10), 0 2px 4px -2px rgba(10,14,17,0.05);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { height: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(234,10,42,0.05), transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(0,150,57,0.04), transparent 45%),
+      var(--surface-body);
+    font-family: "Gilroy", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+
+  .card {
+    width: 100%;
+    max-width: 380px;
+    background: #fff;
+    border-radius: clamp(16px, 5vw, 24px);
+    border: 1px solid rgba(10,14,17,0.04);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .banner {
+    position: relative;
+    background: linear-gradient(160deg, var(--spar-red-hero-from), var(--spar-red-hero-to));
+    padding: clamp(26px, 8vw, 34px) clamp(18px, 6vw, 24px) clamp(22px, 6vw, 30px);
+    overflow: hidden;
+  }
+
+  .banner .watermark {
+    position: absolute;
+    top: -34px;
+    right: -44px;
+    width: 170px;
+    height: 170px;
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  .banner img.logo {
+    position: relative;
+    height: 28px;
+    width: auto;
+  }
+
+  .banner h1 {
+    position: relative;
+    color: #fff;
+    font-size: clamp(18px, 5vw, 21px);
+    font-weight: 800;
+    margin: 18px 0 0;
+    letter-spacing: -0.02em;
+  }
+
+  .banner p {
+    position: relative;
+    color: rgba(255,255,255,0.82);
+    font-size: clamp(12.5px, 3.4vw, 13.5px);
+    font-weight: 400;
+    margin: 8px auto 0;
+    line-height: 1.55;
+    max-width: 260px;
+  }
+
+  .content {
+    padding: 0 clamp(18px, 6vw, 24px) clamp(24px, 7vw, 32px);
+  }
+
+  .qr-wrap {
+    width: min(216px, 100%);
+    margin: 28px auto 0;
+    padding: clamp(12px, 4vw, 18px);
+    background: #fff;
+    border: 1px solid var(--border-default);
+    border-radius: 18px;
+    box-shadow: var(--shadow-md);
+  }
+
+  #qrcode {
+    line-height: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  #qrcode img,
+  #qrcode canvas {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .scan-hint {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 20px;
+    padding: 8px 16px;
+    background: var(--spar-red-light);
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--spar-red-dark);
+  }
+
+  .scan-hint svg { flex-shrink: 0; }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 24px 0 18px;
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-default);
+  }
+
+  .stores {
+    display: flex;
+    gap: 10px;
+  }
+
+  .store-btn {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 12px 8px;
+    border-radius: 13px;
+    background: var(--text-ink-strong);
+    color: #fff;
+    text-decoration: none;
+    font-size: clamp(11.5px, 3.2vw, 12.5px);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 4px 10px -4px rgba(10,14,17,0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  }
+
+  .store-btn:active {
+    opacity: 0.85;
+    transform: translateY(1px);
+    box-shadow: 0 2px 6px -2px rgba(10,14,17,0.35);
+  }
+
+  .store-btn svg { flex-shrink: 0; }
+
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="banner">
+      <img class="watermark" src="assets/images/header-spar-watermark.png" alt="">
+      <img class="logo" src="assets/images/spar-logo.png" alt="SPAR">
+      <h1>Get the SPAR App</h1>
+      <p>Scan &amp; unlock exclusive offers,<br>rewards and faster checkout.</p>
+    </div>
+
+    <div class="content">
+      <div class="qr-wrap">
+        <div id="qrcode"></div>
+      </div>
+
+      <div class="scan-hint">
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6V4.5C3 4.10218 3.15804 3.72064 3.43934 3.43934C3.72064 3.15804 4.10218 3 4.5 3H6M12 3H13.5C13.8978 3 14.2794 3.15804 14.5607 3.43934C14.842 3.72064 15 4.10218 15 4.5V6M15 12V13.5C15 13.8978 14.842 14.2794 14.5607 14.5607C14.2794 14.842 13.8978 15 13.5 15H12M6 15H4.5C4.10218 15 3.72064 14.842 3.43934 14.5607C3.15804 14.2794 3 13.8978 3 13.5V12" stroke="#EA0A2A" stroke-width="1.35" stroke-linecap="round"/>
+          <path d="M3 9H15" stroke="#EA0A2A" stroke-width="1.35" stroke-linecap="round"/>
+        </svg>
+        Scan with your phone camera
+      </div>
+
+      <div class="divider">or download directly</div>
+
+      <div class="stores">
+        <a class="store-btn" id="iosBtn" href="#">
+          <svg width="15" height="15" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141 8 184.8 8 273.5c0 25.9 4.7 52.6 14.2 80.2 12.6 36.7 58.1 126.7 105.6 125.2 24.9-.6 42.5-17.7 74.9-17.7 31.5 0 47.8 17.7 75.6 17.7 47.9-.7 88.9-82.5 100.9-119.3-64.1-30.2-60.5-88.5-60.5-90.9zM256.4 84.6c27-32.1 24.6-61.3 23.8-71.8-23.9 1.4-51.6 16.4-67.3 34.9-17.3 19.8-27.5 44.3-25.3 71.4 25.7 2 49.1-11.4 68.8-34.5z"/></svg>
+          App Store
+        </a>
+        <a class="store-btn" id="androidBtn" href="#">
+          <svg width="15" height="15" viewBox="0 0 512 512" fill="currentColor"><path d="M325.3 234.3L104.6 13.5C90.9 3.5 74.2 7.7 65.5 22.3L237.8 194.6l87.5-40.3zM31.1 34.5C24.6 41.8 21.3 51.7 21.3 63.8v384.4c0 12.1 3.3 22 9.8 29.3L245.4 256 31.1 34.5zM384.5 194l-73.9-42.7-93.1 90.7 93.1 90.7 74.5-43c22.1-13.1 22.1-49.9-.6-95.7zM104.6 498.5l220.7-127.7L325 331.4l-87.5-40.3L65.5 477.7c8.7 14.6 25.4 18.8 39.1 20.8z"/></svg>
+          Google Play
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ▼▼▼ EDIT THESE ▼▼▼
+    const REDIRECT_URL = "https://xyz.com/redirect";
+    const IOS_APP_STORE_URL = "https://apps.apple.com/pk/app/spar-pk/id6804619003";
+    const ANDROID_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.techwards.spar&hl=en";
+
+    document.getElementById("iosBtn").href = IOS_APP_STORE_URL;
+    document.getElementById("androidBtn").href = ANDROID_PLAY_STORE_URL;
+
+    new QRCode(document.getElementById("qrcode"), {
+      text: REDIRECT_URL,
+      width: 320,
+      height: 320,
+      colorDark: "#0A0E11",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  </script>
+</body>
+</html>

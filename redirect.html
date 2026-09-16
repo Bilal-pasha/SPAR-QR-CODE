@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opening SPAR app…</title>
+<link rel="icon" type="image/png" href="assets/images/favicon.png">
+
+<!-- ▼▼▼ EDIT: iOS Smart App Banner (Apple's own mechanism, shows a native-style banner) ▼▼▼ -->
+<meta name="apple-itunes-app" content="app-id=XXXXXXXXX">
+
+<style>
+  @font-face {
+    font-family: "Gilroy";
+    src: url("assets/fonts/Gilroy-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Gilroy";
+    src: url("assets/fonts/Gilroy-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Gilroy";
+    src: url("assets/fonts/Gilroy-ExtraBold.ttf") format("truetype");
+    font-weight: 800;
+    font-display: swap;
+  }
+
+  :root {
+    --spar-red: #EA0A2A;
+    --spar-red-hero-from: #D00617;
+    --spar-red-hero-to: #D92636;
+    --surface-body: #F6F6F6;
+    --border-default: #EDEEF1;
+    --text-ink-strong: #0A0E11;
+    --text-secondary: #6B7280;
+    --text-muted: #8A94A6;
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-body);
+    font-family: "Gilroy", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 24px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 340px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .banner {
+    position: relative;
+    background: linear-gradient(135deg, var(--spar-red-hero-from), var(--spar-red-hero-to));
+    padding: 28px 24px 36px;
+    overflow: hidden;
+  }
+
+  .banner .watermark {
+    position: absolute;
+    top: -30px;
+    right: -40px;
+    width: 150px;
+    height: 150px;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  .banner img.logo {
+    position: relative;
+    height: 28px;
+    width: auto;
+  }
+
+  .content {
+    padding: 0 28px 32px;
+  }
+
+  .spinner-wrap {
+    margin-top: -28px;
+    width: 64px;
+    height: 64px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--border-default);
+    border-top-color: var(--spar-red);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  h1 {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-ink-strong);
+    margin: 20px 0 6px;
+  }
+
+  p#msg {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  #fallback {
+    margin-top: 22px;
+  }
+
+  .fallback-btn {
+    display: inline-block;
+    width: 100%;
+    padding: 13px 16px;
+    background: var(--spar-red);
+    color: #fff;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: opacity 0.15s ease;
+  }
+
+  .fallback-btn:active { opacity: 0.8; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="banner">
+      <img class="watermark" src="assets/images/header-spar-watermark.png" alt="">
+      <img class="logo" src="assets/images/spar-logo.png" alt="SPAR">
+    </div>
+
+    <div class="content">
+      <div class="spinner-wrap">
+        <div class="spinner"></div>
+      </div>
+
+      <h1>Opening the SPAR app…</h1>
+      <p id="msg">Hang tight, we're redirecting you.</p>
+
+      <div id="fallback" style="display:none;">
+        <a class="fallback-btn" id="storeLink" href="#">Tap here if you're not redirected</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ▼▼▼ EDIT THESE VALUES ▼▼▼
+    // Custom URL schemes the app registers natively — confirmed in
+    // ios/SPAR/Info.plist (CFBundleURLSchemes) and
+    // android/app/src/main/AndroidManifest.xml (intent-filter data scheme).
+    // Append a path if you want the app to land on a specific screen that
+    // expo-router can resolve, e.g. "mobile://offers".
+    const APP_SCHEME_URLS = [
+      "mobile://",            // primary scheme (app.config.js `scheme`)
+      "com.techwards.spar://" // bundle id, auto-registered by Expo as a backup
+    ];
+    const IOS_APP_STORE_URL       = "https://apps.apple.com/pk/app/spar-pk/id6804619003";
+    const ANDROID_PLAY_STORE_URL  = "https://play.google.com/store/apps/details?id=com.techwards.spar&hl=en";
+    const DESKTOP_FALLBACK_URL    = "https://www.spar.pk/";
+
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    const isAndroid = /android/i.test(ua);
+    const isMobile = isIOS || isAndroid;
+
+    const storeUrl = isIOS ? IOS_APP_STORE_URL : isAndroid ? ANDROID_PLAY_STORE_URL : DESKTOP_FALLBACK_URL;
+
+    const storeLinkEl = document.getElementById("storeLink");
+    storeLinkEl.href = storeUrl;
+    document.getElementById("fallback").style.display = "block";
+
+    // NOTE: there's no Universal Links (iOS) / verified App Links (Android)
+    // set up for this domain, so the OS never intercepts this URL on its
+    // own — we have to actively try the app's custom scheme and detect
+    // whether it took over. When it does, the tab backgrounds (visibility/
+    // blur/pagehide fire) before our fallback timer runs, so we cancel the
+    // store redirect. If nothing happens within the window, we assume the
+    // app isn't installed and send the user to the right store.
+    let appOpened = false;
+    function markOpened() {
+      appOpened = true;
+    }
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) markOpened();
+    });
+    window.addEventListener("pagehide", markOpened);
+    window.addEventListener("blur", markOpened);
+
+    function goToStore() {
+      if (!appOpened) window.location.replace(storeUrl);
+    }
+
+    // Try each registered scheme a beat apart — only one will actually be
+    // claimed by the app, the rest are silently ignored by the OS.
+    function tryAppSchemes() {
+      APP_SCHEME_URLS.forEach(function (scheme, i) {
+        setTimeout(function () {
+          if (!appOpened) window.location.href = scheme;
+        }, i * 250);
+      });
+    }
+
+    if (isMobile) {
+      tryAppSchemes();
+      setTimeout(goToStore, 1500);
+    } else {
+      setTimeout(goToStore, 800);
+    }
+
+    // A direct tap carries a user gesture, which some browsers require
+    // before they'll let a page hand off to another app — so give the
+    // schemes one more try on click rather than only falling straight
+    // through to the store link.
+    storeLinkEl.addEventListener("click", function (e) {
+      if (!isMobile) return;
+      e.preventDefault();
+      appOpened = false;
+      tryAppSchemes();
+      setTimeout(goToStore, 900);
+    });
+  </script>
+</body>
+</html>
