@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.techwards.spar",
+      "sha256_cert_fingerprints": [
+        "1C:EE:9D:C9:51:D3:5A:D2:77:85:75:57:B2:57:41:40:62:3E:18:B8:3E:E4:EE:30:55:E6:15:DB:9B:A4:C6:FD"
+      ]
+    }
+  }
+]
