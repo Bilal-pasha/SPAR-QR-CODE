@@ -92,6 +92,7 @@
       const ua = navigator.userAgent || navigator.vendor || window.opera;
       const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
       const isAndroid = /android/i.test(ua);
+      const isMobile = isIOS || isAndroid;
 
       // Determine the correct destination URL
       const storeUrl = isIOS
@@ -100,8 +101,9 @@
           ? ANDROID_PLAY_STORE_URL
           : DESKTOP_FALLBACK_URL;
 
-      // TRIGGER REDIRECTION: This line immediately redirects the browser window
-      window.location.href = storeUrl;
+      const storeLinkEl = document.getElementById("storeLink");
+      storeLinkEl.href = storeUrl;
+      document.getElementById("fallback").style.display = "block";
 
       // NOTE: there's no Universal Links (iOS) / verified App Links (Android)
       // set up for this domain, so the OS never intercepts this URL on its
